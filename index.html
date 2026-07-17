@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#050505" />
+    <meta name="description" content="Control simple y privado de tus finanzas personales." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Finanzas</title>
+  </head>
+  <body>
+    <section class="auth-view" id="auth-view" hidden aria-labelledby="auth-title">
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <p class="eyebrow">Control personal</p>
+          <h1 id="auth-title">Finanzas</h1>
+          <p>Tu dinero, con claridad.</p>
+        </div>
+        <div class="auth-toggle" role="tablist" aria-label="Acceso a tu cuenta">
+          <button type="button" class="is-active" data-auth-mode="signin" role="tab" aria-selected="true">Iniciar sesión</button>
+          <button type="button" data-auth-mode="signup" role="tab" aria-selected="false">Crear cuenta</button>
+        </div>
+        <form id="auth-form" novalidate>
+          <label class="form-field">Correo electrónico
+            <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required />
+          </label>
+          <label class="form-field">Contraseña
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo 6 caracteres" required />
+          </label>
+          <p class="auth-error" id="auth-error" role="alert" hidden></p>
+          <button class="primary-button auth-submit" id="auth-submit" type="submit">Iniciar sesión</button>
+        </form>
+      </div>
+    </section>
+
+    <main class="app-shell" id="app-view" hidden>
+      <section id="home-view" class="view">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Resumen</p>
+          <h1>Mis finanzas</h1>
+        </div>
+        <button class="icon-button" id="settings-button" type="button" aria-label="Abrir ajustes">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/><path d="m19.45 13.5.06-1.5-.06-1.5 1.68-1.3-1.8-3.12-2 .8a8.47 8.47 0 0 0-2.6-1.5L14.45 3h-3.6l-.28 2.38a8.47 8.47 0 0 0-2.6 1.5l-2-.8-1.8 3.12 1.68 1.3-.06 1.5.06 1.5-1.68 1.3 1.8 3.12 2-.8a8.47 8.47 0 0 0 2.6 1.5l.28 2.38h3.6l.28-2.38a8.47 8.47 0 0 0 2.6-1.5l2 .8 1.8-3.12-1.68-1.3Z"/></svg>
+        </button>
+      </header>
+
+      <div id="dashboard-data">
+      <section class="balance-section" aria-labelledby="balance-label">
+        <p class="balance-label" id="balance-label">Balance total</p>
+        <p class="balance-amount" id="total-balance" aria-live="polite"></p>
+      </section>
+
+      <section class="monthly-summary" aria-label="Resumen del mes">
+        <article class="summary-card">
+          <p>Ingresos del mes</p>
+          <strong class="money positive" id="monthly-income"></strong>
+        </article>
+        <article class="summary-card">
+          <p>Gastos del mes</p>
+          <strong class="money negative" id="monthly-expenses"></strong>
+        </article>
+      </section>
+
+      <section class="insights-section" id="insights-section" aria-labelledby="insights-title">
+        <h2 id="insights-title">Gastos este mes</h2>
+        <div id="insights-bars"></div>
+      </section>
+
+      <section class="transactions-section" aria-labelledby="transactions-title">
+        <div class="section-heading">
+          <h2 id="transactions-title">Movimientos recientes</h2>
+      <button class="text-button" id="all-transactions-button" type="button">Ver todos</button>
+        </div>
+        <ul class="transaction-list" id="transaction-list" aria-live="polite"></ul>
+      </section>
+      </div>
+      <section class="dashboard-empty" id="dashboard-empty" hidden aria-label="Sin movimientos">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v12H4V7Z"/><path d="M7 7V5h10v2M4 11h16M10 15h4"/></svg>
+        <p>Registra tu primer movimiento para ver tus finanzas aquí</p>
+      </section>
+      </section>
+
+      <section id="history-view" class="view history-view" hidden aria-labelledby="history-title">
+        <header class="history-header">
+          <p class="eyebrow">Actividad</p>
+          <h1 id="history-title">Historial</h1>
+        </header>
+        <div class="history-list" id="history-list" aria-live="polite"></div>
+      </section>
+
+      <section id="settings-view" class="view settings-view" hidden aria-labelledby="settings-title">
+        <header class="history-header">
+          <p class="eyebrow">Preferencias</p>
+          <h1 id="settings-title">Ajustes</h1>
+        </header>
+        <section class="settings-list" aria-label="Configuración general">
+          <button class="settings-row" id="currency-button" type="button">
+            <span><strong>Moneda</strong><small id="current-currency-label"></small></span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div class="settings-row is-static"><span><strong>Versión</strong><small>1.0.0</small></span></div>
+          <button class="settings-row logout-row" id="sign-out-button" type="button"><span><strong>Cerrar sesión</strong><small>Salir de esta cuenta</small></span></button>
+        </section>
+      </section>
+    </main>
+
+    <button class="fab" id="add-transaction-button" type="button" aria-label="Añadir movimiento">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-item is-active" id="home-nav-button" type="button" aria-current="page">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10Z"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-item" id="transactions-nav-button" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+        <span>Movimientos</span>
+      </button>
+      <button class="nav-item" id="settings-nav-button" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/><path d="m19.45 13.5.06-1.5-.06-1.5 1.68-1.3-1.8-3.12-2 .8a8.47 8.47 0 0 0-2.6-1.5L14.45 3h-3.6l-.28 2.38a8.47 8.47 0 0 0-2.6 1.5l-2-.8-1.8 3.12 1.68 1.3-.06 1.5.06 1.5-1.68 1.3 1.8 3.12 2-.8a8.47 8.47 0 0 0 2.6 1.5l.28 2.38h3.6l.28-2.38a8.47 8.47 0 0 0 2.6-1.5l2 .8 1.8-3.12-1.68-1.3Z"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </nav>
+
+    <div class="modal-backdrop" id="transaction-modal" hidden>
+      <section class="modal-sheet transaction-sheet" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title" data-type="expense">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="transaction-modal-title">Nuevo movimiento</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="transaction-modal" aria-label="Cerrar formulario">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form id="transaction-form">
+          <fieldset class="type-selector" aria-label="Tipo de movimiento">
+            <legend>Tipo de movimiento</legend>
+            <label><input type="radio" name="type" value="expense" checked /><span>Gasto</span></label>
+            <label><input type="radio" name="type" value="income" /><span>Ingreso</span></label>
+          </fieldset>
+          <label class="amount-field" for="transaction-amount">Monto
+            <input id="transaction-amount" name="amount" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="amount-preview" aria-live="polite"></span>
+          </label>
+          <fieldset class="category-selector" aria-label="Categoría">
+            <legend>Categoría</legend>
+            <input id="transaction-category" name="category" type="hidden" value="Alimentación" />
+            <div class="category-options" role="list">
+              <button class="category-option is-selected" type="button" data-category="Alimentación" aria-pressed="true"><span aria-hidden="true">A</span><small>Comida</small></button>
+              <button class="category-option" type="button" data-category="Transporte" aria-pressed="false"><span aria-hidden="true">T</span><small>Transporte</small></button>
+              <button class="category-option" type="button" data-category="Trabajo" aria-pressed="false"><span aria-hidden="true">W</span><small>Trabajo</small></button>
+              <button class="category-option" type="button" data-category="Vivienda" aria-pressed="false"><span aria-hidden="true">V</span><small>Vivienda</small></button>
+              <button class="category-option" type="button" data-category="Servicios" aria-pressed="false"><span aria-hidden="true">S</span><small>Servicios</small></button>
+              <button class="category-option" type="button" data-category="Ocio" aria-pressed="false"><span aria-hidden="true">O</span><small>Ocio</small></button>
+            </div>
+          </fieldset>
+          <label class="form-field note-field">Nota
+            <input name="description" maxlength="48" autocomplete="off" placeholder="Añade una descripción" required />
+          </label>
+          <label class="form-field date-field">Fecha
+            <input id="transaction-date" name="date" type="date" required />
+          </label>
+          <button class="primary-button transaction-submit" type="submit">Guardar gasto</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="settings-modal" hidden>
+      <section class="modal-sheet settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="settings-modal-title">Moneda</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="settings-modal" aria-label="Cerrar ajustes">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form id="settings-form">
+          <fieldset class="currency-selector">
+            <legend>Moneda de visualización</legend>
+            <label><input type="radio" name="currency" value="COP" /><span><strong>Colombia · Peso colombiano</strong><small>COP</small></span></label>
+            <label><input type="radio" name="currency" value="USD" /><span><strong>Estados Unidos · Dólar</strong><small>USD</small></span></label>
+            <label><input type="radio" name="currency" value="EUR" /><span><strong>Euro</strong><small>EUR</small></span></label>
+            <label><input type="radio" name="currency" value="MXN" /><span><strong>México · Peso mexicano</strong><small>MXN</small></span></label>
+          </fieldset>
+          <p class="form-note">Cambiar la moneda solo actualiza el formato visual. No convierte los valores guardados.</p>
+          <button class="primary-button" type="submit">Aplicar moneda</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
