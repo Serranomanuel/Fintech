@@ -1,3 +1,2 @@
-// Copy the project URL and the public anon key from Supabase Dashboard > Connect.
-export const SUPABASE_URL = "";
-export const SUPABASE_ANON_KEY = "";
+export const SUPABASE_URL = "https://mpdatxovozlrezwwyvyk.supabase.co";
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZGF0eG92b3pscmV6d3d5dnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyOTU1NzksImV4cCI6MjA5OTg3MTU3OX0.bCHydLKARgjPoBUZ7k3oC5q-IHI5yVAeF9aJP8woejI";

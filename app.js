@@ -476,7 +476,14 @@ document.querySelector("#auth-form").addEventListener("submit", async (event) =>
       showAuthError("Revisa tu correo para confirmar la cuenta antes de iniciar sesión.");
     }
   } catch (error) {
-    const message = error.message === "Invalid login credentials" ? "Correo o contraseña incorrectos." : error.message === "User already registered" ? "Ya existe una cuenta con este correo." : "No fue posible completar la operación. Intenta nuevamente.";
+    console.error("Auth error:", error);
+    const msg = error.message || "";
+    let message;
+    if (msg.includes("Invalid login credentials")) message = "Correo o contraseña incorrectos.";
+    else if (msg.includes("User already registered")) message = "Ya existe una cuenta con este correo.";
+    else if (msg.includes("Email signups are disabled")) message = "El registro por correo está deshabilitado.";
+    else if (msg.includes("Email not confirmed")) message = "Confirma tu correo antes de iniciar sesión.";
+    else message = msg || "No fue posible completar la operación. Intenta nuevamente.";
     showAuthError(message);
   } finally {
     submitButton.disabled = false;
