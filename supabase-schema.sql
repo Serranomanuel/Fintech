@@ -62,6 +62,15 @@ do $$ begin
 exception when duplicate_column then null;
 end $$;
 
+create table if not exists public.budgets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  category text not null check (char_length(category) <= 80),
+  monthly_limit numeric(14, 2) not null check (monthly_limit > 0),
+  created_at timestamptz not null default now(),
+  unique(user_id, category)
+);
+
 create table if not exists public.savings_deposits (
   id uuid primary key default gen_random_uuid(),
   plan_id uuid not null references public.savings_plans(id) on delete cascade,
@@ -78,6 +87,7 @@ alter table public.debts enable row level security;
 alter table public.debt_payments enable row level security;
 alter table public.savings_plans enable row level security;
 alter table public.savings_deposits enable row level security;
+alter table public.budgets enable row level security;
 
 -- profiles
 drop policy if exists "Users can read their profile" on public.profiles;
@@ -130,6 +140,16 @@ drop policy if exists "Users can delete own savings deposits" on public.savings_
 create policy "Users can read own savings deposits" on public.savings_deposits for select using (auth.uid() = user_id);
 create policy "Users can insert own savings deposits" on public.savings_deposits for insert with check (auth.uid() = user_id);
 create policy "Users can delete own savings deposits" on public.savings_deposits for delete using (auth.uid() = user_id);
+
+-- budgets
+drop policy if exists "Users can read own budgets" on public.budgets;
+drop policy if exists "Users can insert own budgets" on public.budgets;
+drop policy if exists "Users can update own budgets" on public.budgets;
+drop policy if exists "Users can delete own budgets" on public.budgets;
+create policy "Users can read own budgets" on public.budgets for select using (auth.uid() = user_id);
+create policy "Users can insert own budgets" on public.budgets for insert with check (auth.uid() = user_id);
+create policy "Users can update own budgets" on public.budgets for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users can delete own budgets" on public.budgets for delete using (auth.uid() = user_id);
 
 -- trigger
 create or replace function public.handle_new_user()

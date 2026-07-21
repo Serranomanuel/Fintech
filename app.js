@@ -5,21 +5,37 @@ import {
   fetchDebts, addDebt, updateDebt, deleteDebt,
   addDebtPayment, fetchDebtPayments, deleteDebtPayment,
   fetchSavingsPlans, addSavingsPlan, updateSavingsPlan, deleteSavingsPlan,
-  addSavingsDeposit, fetchSavingsDeposits, deleteSavingsDeposit
+  addSavingsDeposit, fetchSavingsDeposits, deleteSavingsDeposit,
+  fetchBudgets, upsertBudget, deleteBudget
 } from "./supabaseService.js";
 
 import { getState, setState, onStateChange, resetState } from "./js/state.js";
-import { setCurrency, formatCurrency, parseAmount, todayISO } from "./js/utils.js";
+import { setCurrency, formatCurrency, parseAmount, todayISO, exportTransactionsToCSV } from "./js/utils.js";
 import { renderDashboard } from "./js/views/dashboard.js";
 import { renderPeriodTransactions } from "./js/views/transactions.js";
 import { renderDebts, renderDebtDetail } from "./js/views/debts.js";
 import { renderSavings, renderSavingsDetail } from "./js/views/savings.js";
 import {
   openModal, closeModal, openTransactionModal, openSettingsModal,
-  openDebtModal, openPaymentModal, openSavingsModal, openDepositModal
+  openDebtModal, openPaymentModal, openSavingsModal, openDepositModal,
+  openBudgetModal
 } from "./js/modals.js";
 
 // ── Selective re-render ──
+function applyDarkMode(dark) {
+  document.body.classList.toggle("light", !dark);
+  const toggle = document.querySelector("#dark-mode-toggle");
+  const label = document.querySelector("#dark-mode-label");
+  if (toggle) toggle.setAttribute("aria-checked", String(!dark));
+  if (label) label.textContent = dark ? "Oscuro" : "Claro";
+  localStorage.setItem("finanzas_theme", dark ? "dark" : "light");
+}
+
+const savedTheme = localStorage.getItem("finanzas_theme");
+const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+const initialDark = savedTheme ? savedTheme === "dark" : prefersDark;
+applyDarkMode(initialDark);
+
 onStateChange((s) => {
   setCurrency(s.currentCurrency);
   renderDashboard();
@@ -110,11 +126,12 @@ async function loadSession(session) {
   }
   setState({ isLoading: true });
   try {
-    const [profile, txns, dts, svgs] = await Promise.all([
+    const [profile, txns, dts, svgs, bds] = await Promise.all([
       fetchProfile(user.id),
       fetchTransactions(),
       fetchDebts(),
-      fetchSavingsPlans()
+      fetchSavingsPlans(),
+      fetchBudgets()
     ]);
     setState({
       activeUser: user,
@@ -122,6 +139,7 @@ async function loadSession(session) {
       transactions: txns,
       debts: dts,
       savingsPlans: svgs,
+      budgets: bds,
       isLoading: false,
     });
     showApp();
@@ -152,15 +170,26 @@ bootstrap();
 
 // ── NAV events ──
 document.querySelector("#settings-button").addEventListener("click", () => setView("settings"));
+document.querySelector("#export-csv-button").addEventListener("click", () => {
+  const txns = getState().transactions;
+  if (!txns.length) { showToast("No hay movimientos para exportar."); return; }
+  exportTransactionsToCSV(txns);
+  showToast("CSV descargado.");
+});
 document.querySelector("#add-transaction-button").addEventListener("click", e => openTransactionModal(e.currentTarget));
 document.querySelector("#home-nav-button").addEventListener("click", () => setView("home"));
 document.querySelector("#transactions-nav-button").addEventListener("click", () => setView("transactions"));
 document.querySelector("#debts-nav-button").addEventListener("click", () => setView("debts"));
 document.querySelector("#savings-nav-button").addEventListener("click", () => setView("savings"));
 document.querySelector("#settings-nav-button").addEventListener("click", () => setView("settings"));
+document.querySelector("#dark-mode-button").addEventListener("click", () => {
+  const isLight = document.body.classList.contains("light");
+  applyDarkMode(isLight);
+});
 document.querySelector("#currency-button").addEventListener("click", e => openSettingsModal(e.currentTarget));
 document.querySelector("#add-debt-button").addEventListener("click", e => openDebtModal(e.currentTarget));
 document.querySelector("#add-savings-button").addEventListener("click", e => openSavingsModal(e.currentTarget));
+document.querySelector("#add-budget-button").addEventListener("click", e => openBudgetModal(e.currentTarget));
 document.querySelector("#all-transactions-button").addEventListener("click", () => {
   const s = getState();
   setState({ showAllTransactions: !s.showAllTransactions });
@@ -417,6 +446,36 @@ document.querySelector("#deposit-form").addEventListener("submit", async e => {
   }
 });
 
+// ── FORM: Budget ──
+document.querySelector("#budget-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const form = new FormData(e.currentTarget);
+  const category = form.get("category");
+  const limit = parseAmount(form.get("monthly_limit"));
+  if (!category) { showToast("Selecciona una categoría."); return; }
+  if (!Number.isFinite(limit) || limit <= 0) { showToast("Límite inválido."); return; }
+  const s = getState();
+  if (!s.activeUser) { showToast("Sesión expirada."); return; }
+  const btn = e.currentTarget.querySelector("button[type=submit]");
+  btn.disabled = true;
+  try {
+    const existing = s.budgets.find(b => b.category === category);
+    if (existing) {
+      const upd = await upsertBudget({ id: existing.id, user_id: s.activeUser.id, category, monthly_limit: limit });
+      setState({ budgets: s.budgets.map(b => b.id === existing.id ? upd : b) });
+    } else {
+      const saved = await upsertBudget({ user_id: s.activeUser.id, category, monthly_limit: limit });
+      setState({ budgets: [...s.budgets, saved] });
+    }
+    closeModal("budget-modal");
+    showToast("Presupuesto guardado.");
+  } catch {
+    showToast("No se pudo guardar el presupuesto.");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 // ── Amount previews ──
 document.querySelector("#debt-amount").addEventListener("input", () => {
   const a = parseAmount(document.querySelector("#debt-amount").value);
@@ -433,6 +492,10 @@ document.querySelector("#savings-target").addEventListener("input", () => {
 document.querySelector("#deposit-amount").addEventListener("input", () => {
   const a = parseAmount(document.querySelector("#deposit-amount").value);
   document.querySelector("#deposit-amount-preview").textContent = Number.isFinite(a) && a > 0 ? formatCurrency(a) : "";
+});
+document.querySelector("#budget-amount").addEventListener("input", () => {
+  const a = parseAmount(document.querySelector("#budget-amount").value);
+  document.querySelector("#budget-amount-preview").textContent = Number.isFinite(a) && a > 0 ? formatCurrency(a) : "";
 });
 
 // ── DEBT ACTIONS (delegated) ──

@@ -172,3 +172,65 @@ export function daysUntilDeadline(deadline) {
   if (!deadline) return null;
   return Math.ceil((new Date(deadline) - new Date()) / 86400000);
 }
+
+export function exportTransactionsToCSV(txns) {
+  const headers = ["Fecha", "Tipo", "Categoría", "Descripción", "Monto"];
+  const rows = txns.map(t => [
+    t.date.slice(0, 10),
+    t.type === "income" ? "Ingreso" : "Gasto",
+    t.category,
+    `"${(t.description || "").replace(/"/g, '""')}"`,
+    t.amount
+  ]);
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `finanzas_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function calculateFinancialHealth(txns, debts, savingsPlans, budgets) {
+  const cm = currentMonthPrefix();
+  const mTxns = txns.filter(t => t.date.startsWith(cm));
+  const income = mTxns.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+  const expenses = mTxns.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  const activeDebts = debts.filter(d => d.status === "active");
+  const totalDebt = activeDebts.reduce((s, d) => s + d.remaining_amount, 0);
+  const totalMinPayment = activeDebts.reduce((s, d) => s + d.minimum_payment, 0);
+  const totalSaved = savingsPlans.reduce((s, p) => s + p.current_amount, 0);
+
+  let score = 50;
+  if (income > 0) {
+    const savingsRate = (income - expenses) / income;
+    if (savingsRate >= 0.2) score += 20;
+    else if (savingsRate >= 0.1) score += 12;
+    else if (savingsRate >= 0) score += 5;
+    else score -= 15;
+  }
+  if (income > 0) {
+    const dti = totalDebt / (income * 12);
+    if (dti <= 0.1) score += 15;
+    else if (dti <= 0.3) score += 8;
+    else if (dti <= 0.5) score -= 5;
+    else score -= 15;
+  }
+  if (budgets.length > 0) {
+    const spending = {};
+    mTxns.filter(t => t.type === "expense").forEach(t => {
+      spending[t.category] = (spending[t.category] || 0) + t.amount;
+    });
+    const withinBudget = budgets.filter(b => (spending[b.category] || 0) <= b.monthly_limit).length;
+    score += Math.round((withinBudget / budgets.length) * 10);
+  }
+  if (expenses > 0) {
+    const monthsCovered = totalSaved / expenses;
+    if (monthsCovered >= 3) score += 10;
+    else if (monthsCovered >= 1) score += 5;
+  } else if (totalSaved > 0) {
+    score += 5;
+  }
+  return Math.max(0, Math.min(100, score));
+}

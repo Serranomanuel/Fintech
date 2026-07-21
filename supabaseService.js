@@ -153,3 +153,20 @@ export async function deleteSavingsDeposit(deposit) {
   const { error } = await requireClient().from("savings_deposits").delete().eq("id", deposit.id);
   throwIfError(error);
 }
+
+export async function fetchBudgets() {
+  const { data, error } = await requireClient().from("budgets").select("id, category, monthly_limit").order("created_at", { ascending: false });
+  throwIfError(error);
+  return data.map((b) => ({ ...b, monthly_limit: Number(b.monthly_limit) }));
+}
+
+export async function upsertBudget(budget) {
+  const { data, error } = await requireClient().from("budgets").upsert(budget, { onConflict: "user_id,category" }).select("id, category, monthly_limit").single();
+  throwIfError(error);
+  return { ...data, monthly_limit: Number(data.monthly_limit) };
+}
+
+export async function deleteBudget(id) {
+  const { error } = await requireClient().from("budgets").delete().eq("id", id);
+  throwIfError(error);
+}

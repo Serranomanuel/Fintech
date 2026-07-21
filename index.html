@@ -60,6 +60,19 @@
             <p class="balance-label" id="balance-label">Balance total</p>
             <p class="balance-amount" id="total-balance" aria-live="polite"></p>
           </section>
+          <section class="health-section" id="health-section" aria-labelledby="health-title">
+            <div class="health-gauge" id="health-gauge">
+              <svg viewBox="0 0 120 120" class="gauge-svg">
+                <circle cx="60" cy="60" r="52" class="gauge-track"/>
+                <circle cx="60" cy="60" r="52" class="gauge-fill" id="gauge-fill"/>
+              </svg>
+              <div class="gauge-center">
+                <span class="gauge-score" id="gauge-score">--</span>
+                <span class="gauge-label">Salud</span>
+              </div>
+            </div>
+            <div class="health-details" id="health-details"></div>
+          </section>
           <section class="monthly-summary" aria-label="Resumen del mes">
             <article class="summary-card"><p>Ingresos del mes</p><strong class="money positive" id="monthly-income"></strong></article>
             <article class="summary-card"><p>Gastos del mes</p><strong class="money negative" id="monthly-expenses"></strong></article>
@@ -71,6 +84,20 @@
           <section class="insights-section" id="insights-section" aria-labelledby="insights-title">
             <h2 id="insights-title">Gastos este mes</h2>
             <div id="insights-bars"></div>
+          </section>
+          <section class="budgets-section" id="budgets-section" aria-labelledby="budgets-title">
+            <div class="section-heading">
+              <h2 id="budgets-title">Presupuestos</h2>
+              <button class="text-button" id="add-budget-button" type="button">Editar</button>
+            </div>
+            <div id="budgets-bars"></div>
+          </section>
+          <section class="calendar-section" id="calendar-section" aria-labelledby="calendar-title">
+            <h2 id="calendar-title">Calendario de pagos</h2>
+            <div class="calendar-wrapper">
+              <div class="calendar-grid" id="calendar-grid"></div>
+              <div class="calendar-events" id="calendar-events"></div>
+            </div>
           </section>
           <section class="transactions-section" aria-labelledby="transactions-title">
             <div class="section-heading">
@@ -156,6 +183,14 @@
           <button class="settings-row" id="currency-button" type="button">
             <span><strong>Moneda</strong><small id="current-currency-label"></small></span>
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="settings-row" id="dark-mode-button" type="button">
+            <span><strong>Tema</strong><small id="dark-mode-label">Oscuro</small></span>
+            <div class="toggle-switch" id="dark-mode-toggle" role="switch" aria-checked="false" tabindex="0"><span class="toggle-knob"></span></div>
+          </button>
+          <button class="settings-row" id="export-csv-button" type="button">
+            <span><strong>Exportar datos</strong><small>Descargar transacciones CSV</small></span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           </button>
           <div class="settings-row is-static"><span><strong>Versión</strong><small>1.0.0</small></span></div>
           <button class="settings-row logout-row" id="sign-out-button" type="button"><span><strong>Cerrar sesión</strong><small>Salir de esta cuenta</small></span></button>
@@ -409,6 +444,36 @@
           </button>
         </div>
         <div id="savings-detail-content"></div>
+      </section>
+    </div>
+
+    <!-- MODAL: Budget -->
+    <div class="modal-backdrop" id="budget-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="budget-modal-title">Editar presupuesto</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="budget-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form id="budget-form">
+          <label class="form-field">Categoría
+            <select id="budget-category" name="category" required>
+              <option value="Alimentación">Alimentación</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Trabajo">Trabajo</option>
+              <option value="Vivienda">Vivienda</option>
+              <option value="Servicios">Servicios</option>
+              <option value="Ocio">Ocio</option>
+            </select>
+          </label>
+          <label class="amount-field" for="budget-amount">Límite mensual
+            <input id="budget-amount" name="monthly_limit" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="budget-amount-preview" aria-live="polite"></span>
+          </label>
+          <button class="primary-button" type="submit">Guardar presupuesto</button>
+        </form>
       </section>
     </div>
 

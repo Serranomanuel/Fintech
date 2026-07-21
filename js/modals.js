@@ -167,6 +167,21 @@ export function openDepositModal(planId, trigger) {
   openModal("deposit-modal", trigger);
 }
 
+export function openBudgetModal(trigger) {
+  const f = document.querySelector("#budget-form");
+  f.reset();
+  document.querySelector("#budget-amount-preview").textContent = "";
+  document.querySelector("#budget-modal-title").textContent = "Editar presupuesto";
+  const s = getState();
+  const cats = ["Alimentación", "Transporte", "Trabajo", "Vivienda", "Servicios", "Ocio"];
+  const existing = s.budgets.find(b => b.category === document.querySelector('#budget-category').value);
+  if (existing) {
+    document.querySelector("#budget-amount").value = existing.monthly_limit;
+    document.querySelector("#budget-amount-preview").textContent = formatCurrency(existing.monthly_limit);
+  }
+  openModal("budget-modal", trigger);
+}
+
 function selectCategory(c) {
   document.querySelector("#transaction-category").value = c;
   document.querySelectorAll(".category-option").forEach((b) => {

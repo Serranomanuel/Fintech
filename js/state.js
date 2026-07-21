@@ -5,6 +5,7 @@ let state = {
   transactions: [],
   debts: [],
   savingsPlans: [],
+  budgets: [],
   currentCurrency: DEFAULT_CURRENCY,
   authMode: "signin",
   activePeriod: "month",
@@ -13,6 +14,7 @@ let state = {
   selectedDebtId: null,
   selectedSavingsId: null,
   isLoading: false,
+  darkMode: window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false,
 };
 
 let listeners = [];
@@ -37,6 +39,7 @@ export function resetState() {
     transactions: [],
     debts: [],
     savingsPlans: [],
+    budgets: [],
     currentCurrency: DEFAULT_CURRENCY,
     isLoading: false,
   };

@@ -141,6 +141,18 @@ Depósitos individuales en cada plan.
 | deposit_date | timestamptz | Cuándo se registró |
 | created_at | timestamptz | Auto |
 
+#### `budgets`
+Límites de gasto mensual por categoría.
+| Columna | Tipo | Descripción |
+|---------|------|------------|
+| id | uuid (PK) | Auto-generated |
+| user_id | uuid (FK → auth.users) | Dueño |
+| category | text | Nombre de la categoría |
+| monthly_limit | numeric(14,2) | Límite mensual (> 0) |
+| created_at | timestamptz | Auto |
+
+**Unique constraint**: (user_id, category) — upsert para actualizar
+
 ### 4.2 Row Level Security (RLS)
 
 Cada tabla tiene policies que aseguran que un usuario solo pueda ver/modificar sus propios datos usando `auth.uid()`. Las policies están definidas en `supabase-schema.sql`.
@@ -171,6 +183,7 @@ let state = {
   transactions: [],        // Array de transacciones del usuario
   debts: [],               // Array de deudas del usuario
   savingsPlans: [],        // Array de planes de ahorro del usuario
+  budgets: [],             // Array de presupuestos por categoría
   currentCurrency: "COP",  // Moneda activa para formato visual
   authMode: "signin",      // 'signin' o 'signup'
   activePeriod: "month",   // 'week', 'month', 'year', 'all'
@@ -179,6 +192,7 @@ let state = {
   selectedDebtId: null,
   selectedSavingsId: null,
   isLoading: false,
+  darkMode: true,          // Modo oscuro activo
 };
 ```
 
@@ -192,10 +206,11 @@ Cada vista se suscribe con `onStateChange()` y solo re-renderiza cuando sus dato
 | `js/state.js` | Estado global reactivo (getState/setState/onStateChange) |
 | `js/utils.js` | Funciones puras: formatCurrency, parseAmount, esc, fechas, etc. |
 | `js/modals.js` | Abrir/cerrar modales, pre-llenar formularios en modo edición |
-| `js/views/dashboard.js` | Dashboard: balance, resumen mensual, insights, recientes |
+| `js/views/dashboard.js` | Dashboard: balance, score salud, presupuestos, calendario, insights, recientes |
 | `js/views/transactions.js` | Lista de transacciones agrupadas por fecha |
 | `js/views/debts.js` | Tarjetas de deudas + detalle con historial de pagos |
 | `js/views/savings.js` | Tarjetas de ahorros + detalle con historial de depósitos |
+| `js/views/calendar.js` | Calendario mensual con eventos de deudas y metas |
 
 ### 5.4 Navegación
 
@@ -229,6 +244,9 @@ Estrategia: **Cache-first con actualización en background**
 - Balance total (ingresos - gastos acumulados)
 - Resumen del mes: ingresos y gastos
 - Resumen de deudas: cuota mínima mensual + disponible tras deudas
+- **Score de salud financiera** (0-100): gauge circular con detalles de ahorro, deuda y estado
+- **Presupuestos por categoría**: barras de progreso con límite mensual, alerta al exceder
+- **Calendario de pagos**: grilla del mes con días de vencimiento de deudas y metas de ahorro
 - Top 3 categorías de gasto con barras de progreso
 - Últimos 3 movimientos (con opción de ver todos)
 
@@ -257,6 +275,33 @@ Estrategia: **Cache-first con actualización en background**
 ### Formato de moneda
 - COP (es-CO, sin decimales), USD (en-US), EUR (de-DE), MXN (es-MX)
 - Solo cambia formato visual, no convierte valores
+
+### Modo oscuro / Claro
+- Toggle en Ajustes con persistencia en localStorage
+- Respeta preferencia del sistema (prefers-color-scheme)
+- Paleta personalizada: #0B1320, #0B7285, #2EC4B6, #A7F3D0, #E6FFFA
+
+### Presupuestos por categoría
+- Establecer límite mensual por categoría (Alimentación, Transporte, etc.)
+- Upsert: si ya existe un presupuesto para la categoría, se actualiza
+- Barras de progreso en dashboard muestran gastado vs límite
+- Alerta visual (barra roja) al exceder el presupuesto
+
+### Score de salud financiera
+- Compuesto: tasa de ahorro, ratio deuda/ingreso, adherencia a presupuesto, fondo de emergencia
+- Visualización: gauge SVG circular (0-100) con color dinámico
+- Desglose: % ahorro mensual, deuda total, total ahorrado, estado
+
+### Calendario de pagos
+- Grilla del mes actual con días marcados
+- Eventos: cuotas de deudas (día de vencimiento) y metas de ahorro (fecha límite)
+- Colores: rojo para deudas, teal para ahorros
+- Indicador de urgencia: <=3 días (urgente), <=7 días (próximo)
+
+### Exportar datos
+- Botón en Ajustes para descargar transacciones como CSV
+- Encoding UTF-8 con BOM para compatibilidad con Excel
+- Columnas: Fecha, Tipo, Categoría, Descripción, Monto
 
 ---
 
@@ -331,12 +376,16 @@ Para agregar una categoría, hay que modificar:
 ## 12. Pendiente / TODO
 
 - [ ] Agregar paginación o scroll infinito para muchos movimientos
-- [ ] Exportar datos a CSV
 - [ ] Gráficas de tendencias mensuales
-- [ ] Recordatorios de pago de deudas
+- [ ] Recordatorios de pago de deudas (notificaciones push)
 - [ ] Categorías personalizables por el usuario
 - [ ] Modo offline completo con cola de sincronización
 - [x] ~~Tests unitarios~~ (Vitest configurado, tests en tests/)
+- [x] ~~Presupuestos por categoría~~
+- [x] ~~Exportar datos a CSV~~
+- [x] ~~Modo oscuro/claro~~
+- [x] ~~Score de salud financiera~~
+- [x] ~~Calendario de pagos~~
 
 ---
 
@@ -366,3 +415,11 @@ Para agregar una categoría, hay que modificar:
 | 2025-07-21 | UX: confirmación antes de eliminar pagos y depósitos individuales |
 | 2025-07-21 | CSS: prefers-reduced-motion para barras de progreso y transiciones |
 | 2025-07-21 | Repo: dist/ eliminado del tracking git, .gitignore actualizado con .env |
+| 2025-07-21 | Feature: presupuestos por categoría (DB budgets, modal, dashboard bars) |
+| 2025-07-21 | Feature: exportar transacciones a CSV |
+| 2025-07-21 | Feature: modo oscuro/claro con paleta personalizada (#0B1320, #0B7285, #2EC4B6, #A7F3D0, #E6FFFA) |
+| 2025-07-21 | Feature: score de salud financiera (gauge SVG 0-100, desglose de métricas) |
+| 2025-07-21 | Feature: calendario de pagos (grilla mensual, eventos de deudas y ahorros) |
+| 2025-07-21 | Fix: modals.js importa de utils.js (eliminada duplicación de funciones) |
+| 2025-07-21 | Fix: vistas importan directamente de supabaseService.js (eliminado window.__deps) |
+| 2025-07-21 | Fix: config.js lee solo de .env (eliminadas credenciales hardcodeadas) |
