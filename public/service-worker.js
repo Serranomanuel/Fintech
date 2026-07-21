@@ -1,4 +1,4 @@
-const CACHE_NAME = "finanzas-v6";
+const CACHE_NAME = "finanzas-v7";
 const PRECACHE = ["./", "./index.html", "./manifest.json", "./icons/icon-192.svg", "./icons/icon-512.svg"];
 
 self.addEventListener("install", (event) => {

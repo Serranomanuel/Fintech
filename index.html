@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#050505" />
+    <meta name="theme-color" content="#08080a" />
     <meta name="description" content="Control simple y privado de tus finanzas personales." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,6 +17,7 @@
     <title>Finanzas</title>
   </head>
   <body>
+    <!-- AUTH -->
     <section class="auth-view" id="auth-view" hidden aria-labelledby="auth-title">
       <div class="auth-panel">
         <div class="auth-brand">
@@ -42,61 +43,110 @@
     </section>
 
     <main class="app-shell" id="app-view" hidden>
+
+      <!-- HOME -->
       <section id="home-view" class="view">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Resumen</p>
-          <h1>Mis finanzas</h1>
-        </div>
-        <button class="icon-button" id="settings-button" type="button" aria-label="Abrir ajustes">
-          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/><path d="m19.45 13.5.06-1.5-.06-1.5 1.68-1.3-1.8-3.12-2 .8a8.47 8.47 0 0 0-2.6-1.5L14.45 3h-3.6l-.28 2.38a8.47 8.47 0 0 0-2.6 1.5l-2-.8-1.8 3.12 1.68 1.3-.06 1.5.06 1.5-1.68 1.3 1.8 3.12 2-.8a8.47 8.47 0 0 0 2.6 1.5l.28 2.38h3.6l.28-2.38a8.47 8.47 0 0 0 2.6-1.5l2 .8 1.8-3.12-1.68-1.3Z"/></svg>
-        </button>
-      </header>
-
-      <div id="dashboard-data">
-      <section class="balance-section" aria-labelledby="balance-label">
-        <p class="balance-label" id="balance-label">Balance total</p>
-        <p class="balance-amount" id="total-balance" aria-live="polite"></p>
-      </section>
-
-      <section class="monthly-summary" aria-label="Resumen del mes">
-        <article class="summary-card">
-          <p>Ingresos del mes</p>
-          <strong class="money positive" id="monthly-income"></strong>
-        </article>
-        <article class="summary-card">
-          <p>Gastos del mes</p>
-          <strong class="money negative" id="monthly-expenses"></strong>
-        </article>
-      </section>
-
-      <section class="insights-section" id="insights-section" aria-labelledby="insights-title">
-        <h2 id="insights-title">Gastos este mes</h2>
-        <div id="insights-bars"></div>
-      </section>
-
-      <section class="transactions-section" aria-labelledby="transactions-title">
-        <div class="section-heading">
-          <h2 id="transactions-title">Movimientos recientes</h2>
-      <button class="text-button" id="all-transactions-button" type="button">Ver todos</button>
-        </div>
-        <ul class="transaction-list" id="transaction-list" aria-live="polite"></ul>
-      </section>
-      </div>
-      <section class="dashboard-empty" id="dashboard-empty" hidden aria-label="Sin movimientos">
-        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v12H4V7Z"/><path d="M7 7V5h10v2M4 11h16M10 15h4"/></svg>
-        <p>Registra tu primer movimiento para ver tus finanzas aquí</p>
-      </section>
-      </section>
-
-      <section id="history-view" class="view history-view" hidden aria-labelledby="history-title">
-        <header class="history-header">
-          <p class="eyebrow">Actividad</p>
-          <h1 id="history-title">Historial</h1>
+        <header class="app-header">
+          <div>
+            <p class="eyebrow">Resumen</p>
+            <h1>Mis finanzas</h1>
+          </div>
+          <button class="icon-button" id="settings-button" type="button" aria-label="Abrir ajustes">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/><path d="m19.45 13.5.06-1.5-.06-1.5 1.68-1.3-1.8-3.12-2 .8a8.47 8.47 0 0 0-2.6-1.5L14.45 3h-3.6l-.28 2.38a8.47 8.47 0 0 0-2.6 1.5l-2-.8-1.8 3.12 1.68 1.3-.06 1.5.06 1.5-1.68 1.3 1.8 3.12 2-.8a8.47 8.47 0 0 0 2.6 1.5l.28 2.38h3.6l.28-2.38a8.47 8.47 0 0 0 2.6-1.5l2 .8 1.8-3.12-1.68-1.3Z"/></svg>
+          </button>
         </header>
-        <div class="history-list" id="history-list" aria-live="polite"></div>
+        <div id="dashboard-data">
+          <section class="balance-section" aria-labelledby="balance-label">
+            <p class="balance-label" id="balance-label">Balance total</p>
+            <p class="balance-amount" id="total-balance" aria-live="polite"></p>
+          </section>
+          <section class="monthly-summary" aria-label="Resumen del mes">
+            <article class="summary-card"><p>Ingresos del mes</p><strong class="money positive" id="monthly-income"></strong></article>
+            <article class="summary-card"><p>Gastos del mes</p><strong class="money negative" id="monthly-expenses"></strong></article>
+          </section>
+          <section class="monthly-summary" aria-label="Deudas del mes" id="monthly-debt-summary" hidden>
+            <article class="summary-card summary-debt"><p>Cuotas de deudas</p><strong class="money negative" id="monthly-debt-minimum"></strong></article>
+            <article class="summary-card summary-remaining"><p>Disponible tras deudas</p><strong class="money" id="monthly-remaining"></strong></article>
+          </section>
+          <section class="insights-section" id="insights-section" aria-labelledby="insights-title">
+            <h2 id="insights-title">Gastos este mes</h2>
+            <div id="insights-bars"></div>
+          </section>
+          <section class="transactions-section" aria-labelledby="transactions-title">
+            <div class="section-heading">
+              <h2 id="transactions-title">Movimientos recientes</h2>
+              <button class="text-button" id="all-transactions-button" type="button">Ver todos</button>
+            </div>
+            <ul class="transaction-list" id="transaction-list" aria-live="polite"></ul>
+          </section>
+        </div>
+        <section class="dashboard-empty" id="dashboard-empty" hidden aria-label="Sin movimientos">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v12H4V7Z"/><path d="M7 7V5h10v2M4 11h16M10 15h4"/></svg>
+          <p>Registra tu primer movimiento para ver tus finanzas aquí</p>
+        </section>
       </section>
 
+      <!-- MOVEMENTS -->
+      <section id="transactions-view" class="view" hidden aria-labelledby="movements-title">
+        <header class="app-header">
+          <div>
+            <p class="eyebrow">Actividad</p>
+            <h1 id="movements-title">Movimientos</h1>
+          </div>
+        </header>
+        <div class="period-filters" role="tablist" aria-label="Filtrar por período">
+          <button class="period-btn" type="button" role="tab" data-period="week" aria-selected="false">Semana</button>
+          <button class="period-btn is-active" type="button" role="tab" data-period="month" aria-selected="true">Mes</button>
+          <button class="period-btn" type="button" role="tab" data-period="year" aria-selected="false">Año</button>
+          <button class="period-btn" type="button" role="tab" data-period="all" aria-selected="false">Todo</button>
+        </div>
+        <div class="period-summary" id="period-summary"></div>
+        <div class="history-list" id="period-transactions" aria-live="polite"></div>
+      </section>
+
+      <!-- DEBTS -->
+      <section id="debts-view" class="view" hidden aria-labelledby="debts-title">
+        <header class="app-header">
+          <div>
+            <p class="eyebrow">Organización</p>
+            <h1 id="debts-title">Deudas</h1>
+          </div>
+          <button class="icon-button" id="add-debt-button" type="button" aria-label="Añadir deuda">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </header>
+        <div id="debts-summary-cards" class="debts-summary-cards"></div>
+        <div id="debts-data">
+          <div class="debts-list" id="debts-list" aria-live="polite"></div>
+        </div>
+        <section class="dashboard-empty" id="debts-empty" hidden aria-label="Sin deudas">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v12H4V7Z"/><path d="M7 7V5h10v2M4 11h16M10 15h4"/></svg>
+          <p>Agrega tus deudas para empezar a organizar tus pagos</p>
+        </section>
+      </section>
+
+      <!-- SAVINGS -->
+      <section id="savings-view" class="view" hidden aria-labelledby="savings-title">
+        <header class="app-header">
+          <div>
+            <p class="eyebrow">Metas</p>
+            <h1 id="savings-title">Ahorros</h1>
+          </div>
+          <button class="icon-button" id="add-savings-button" type="button" aria-label="Crear plan de ahorro">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </header>
+        <div id="savings-summary-cards" class="savings-summary-cards"></div>
+        <div id="savings-data">
+          <div class="savings-list" id="savings-list" aria-live="polite"></div>
+        </div>
+        <section class="dashboard-empty" id="savings-empty" hidden aria-label="Sin planes">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <p>Crea tu primer plan de ahorro para empezar a alcanzar tus metas</p>
+        </section>
+      </section>
+
+      <!-- SETTINGS -->
       <section id="settings-view" class="view settings-view" hidden aria-labelledby="settings-title">
         <header class="history-header">
           <p class="eyebrow">Preferencias</p>
@@ -113,10 +163,12 @@
       </section>
     </main>
 
+    <!-- FAB -->
     <button class="fab" id="add-transaction-button" type="button" aria-label="Añadir movimiento">
       <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     </button>
 
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav" aria-label="Navegación principal">
       <button class="nav-item is-active" id="home-nav-button" type="button" aria-current="page">
         <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10Z"/></svg>
@@ -126,18 +178,27 @@
         <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
         <span>Movimientos</span>
       </button>
+      <button class="nav-item" id="debts-nav-button" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v12H4V7Z"/><path d="M7 7V5h10v2M4 11h16"/></svg>
+        <span>Deudas</span>
+      </button>
+      <button class="nav-item" id="savings-nav-button" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <span>Ahorros</span>
+      </button>
       <button class="nav-item" id="settings-nav-button" type="button">
         <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/><path d="m19.45 13.5.06-1.5-.06-1.5 1.68-1.3-1.8-3.12-2 .8a8.47 8.47 0 0 0-2.6-1.5L14.45 3h-3.6l-.28 2.38a8.47 8.47 0 0 0-2.6 1.5l-2-.8-1.8 3.12 1.68 1.3-.06 1.5.06 1.5-1.68 1.3 1.8 3.12 2-.8a8.47 8.47 0 0 0 2.6 1.5l.28 2.38h3.6l.28-2.38a8.47 8.47 0 0 0 2.6-1.5l2 .8 1.8-3.12-1.68-1.3Z"/></svg>
         <span>Ajustes</span>
       </button>
     </nav>
 
+    <!-- MODAL: Transaction -->
     <div class="modal-backdrop" id="transaction-modal" hidden>
       <section class="modal-sheet transaction-sheet" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title" data-type="expense">
         <div class="modal-handle" aria-hidden="true"></div>
         <div class="modal-header">
           <h2 id="transaction-modal-title">Nuevo movimiento</h2>
-          <button class="icon-button modal-close" type="button" data-close-modal="transaction-modal" aria-label="Cerrar formulario">
+          <button class="icon-button modal-close" type="button" data-close-modal="transaction-modal" aria-label="Cerrar">
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
         </div>
@@ -174,12 +235,13 @@
       </section>
     </div>
 
+    <!-- MODAL: Currency -->
     <div class="modal-backdrop" id="settings-modal" hidden>
       <section class="modal-sheet settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
         <div class="modal-handle" aria-hidden="true"></div>
         <div class="modal-header">
           <h2 id="settings-modal-title">Moneda</h2>
-          <button class="icon-button modal-close" type="button" data-close-modal="settings-modal" aria-label="Cerrar ajustes">
+          <button class="icon-button modal-close" type="button" data-close-modal="settings-modal" aria-label="Cerrar">
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
         </div>
@@ -194,6 +256,159 @@
           <p class="form-note">Cambiar la moneda solo actualiza el formato visual. No convierte los valores guardados.</p>
           <button class="primary-button" type="submit">Aplicar moneda</button>
         </form>
+      </section>
+    </div>
+
+    <!-- MODAL: Add Debt -->
+    <div class="modal-backdrop" id="debt-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="debt-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="debt-modal-title">Nueva deuda</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="debt-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form id="debt-form">
+          <label class="form-field">Nombre de la deuda
+            <input name="name" maxlength="100" autocomplete="off" placeholder="Ej: Tarjeta de crédito" required />
+          </label>
+          <label class="form-field">Acreedor / Entidad
+            <input name="creditor" maxlength="100" autocomplete="off" placeholder="Ej: Banco BBVA" />
+          </label>
+          <label class="amount-field" for="debt-amount">Monto total
+            <input id="debt-amount" name="total_amount" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="debt-amount-preview" aria-live="polite"></span>
+          </label>
+          <label class="form-field">Cuota mínima mensual
+            <input name="minimum_payment" inputmode="decimal" autocomplete="off" placeholder="0" required />
+          </label>
+          <label class="form-field">Tasa de interés (% anual)
+            <input name="interest_rate" inputmode="decimal" autocomplete="off" placeholder="0" />
+          </label>
+          <label class="form-field">Día de pago
+            <input name="due_day" type="number" min="1" max="31" value="1" required />
+          </label>
+          <button class="primary-button" type="submit">Guardar deuda</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- MODAL: Debt Payment -->
+    <div class="modal-backdrop" id="payment-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="payment-modal-title">Registrar pago</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="payment-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="payment-debt-info" class="payment-debt-info"></div>
+        <form id="payment-form">
+          <input type="hidden" name="debt_id" id="payment-debt-id" />
+          <label class="amount-field" for="payment-amount">Monto a pagar
+            <input id="payment-amount" name="amount" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="payment-amount-preview" aria-live="polite"></span>
+          </label>
+          <label class="form-field">Nota (opcional)
+            <input name="note" maxlength="200" autocomplete="off" placeholder="Ej: Pago quincenal" />
+          </label>
+          <button class="primary-button" type="submit" id="payment-submit-btn">Registrar pago</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- MODAL: Debt Detail -->
+    <div class="modal-backdrop" id="debt-detail-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="debt-detail-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="debt-detail-title">Detalle de deuda</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="debt-detail-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="debt-detail-content"></div>
+      </section>
+    </div>
+
+    <!-- MODAL: Add Savings Plan -->
+    <div class="modal-backdrop" id="savings-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="savings-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="savings-modal-title">Nuevo plan de ahorro</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="savings-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form id="savings-form">
+          <label class="form-field">Nombre del plan
+            <input name="name" maxlength="100" autocomplete="off" placeholder="Ej: Fondo de emergencia" required />
+          </label>
+          <label class="amount-field" for="savings-target">Meta de ahorro
+            <input id="savings-target" name="target_amount" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="savings-target-preview" aria-live="polite"></span>
+          </label>
+          <label class="form-field">Fecha límite (opcional)
+            <input name="deadline" type="date" />
+          </label>
+          <label class="form-field">Plazo en meses (opcional)
+            <input name="months" type="number" min="1" max="120" placeholder="Ej: 6" />
+          </label>
+          <fieldset class="color-selector" aria-label="Color del plan">
+            <legend>Color</legend>
+            <div class="color-options">
+              <button type="button" class="color-option is-selected" data-color="violet" aria-label="Violeta"><span></span></button>
+              <button type="button" class="color-option" data-color="blue" aria-label="Azul"><span></span></button>
+              <button type="button" class="color-option" data-color="teal" aria-label="Verde"><span></span></button>
+              <button type="button" class="color-option" data-color="rose" aria-label="Rosa"><span></span></button>
+              <button type="button" class="color-option" data-color="amber" aria-label="Ámbar"><span></span></button>
+            </div>
+          </fieldset>
+          <input type="hidden" name="color" value="violet" />
+          <button class="primary-button" type="submit">Crear plan</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- MODAL: Savings Deposit -->
+    <div class="modal-backdrop" id="deposit-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="deposit-modal-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="deposit-modal-title">Agregar ahorro</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="deposit-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="deposit-plan-info" class="deposit-plan-info"></div>
+        <form id="deposit-form">
+          <input type="hidden" name="plan_id" id="deposit-plan-id" />
+          <label class="amount-field" for="deposit-amount">Monto a ahorrar
+            <input id="deposit-amount" name="amount" inputmode="decimal" autocomplete="off" placeholder="0" required />
+            <span id="deposit-amount-preview" aria-live="polite"></span>
+          </label>
+          <label class="form-field">Nota (opcional)
+            <input name="note" maxlength="200" autocomplete="off" placeholder="Ej: Ahorro quincenal" />
+          </label>
+          <button class="primary-button" type="submit">Guardar ahorro</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- MODAL: Savings Detail -->
+    <div class="modal-backdrop" id="savings-detail-modal" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="savings-detail-title">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="savings-detail-title">Detalle del plan</h2>
+          <button class="icon-button modal-close" type="button" data-close-modal="savings-detail-modal" aria-label="Cerrar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="savings-detail-content"></div>
       </section>
     </div>
 

@@ -49,11 +49,17 @@ export async function fetchProfile(userId) {
 export async function fetchTransactions() {
   const { data, error } = await requireClient().from("transactions").select("id, type, amount, category, description, date").order("date", { ascending: false });
   throwIfError(error);
-  return data.map((transaction) => ({ ...transaction, amount: Number(transaction.amount) }));
+  return data.map((t) => ({ ...t, amount: Number(t.amount) }));
 }
 
 export async function addTransaction(transaction) {
   const { data, error } = await requireClient().from("transactions").insert(transaction).select("id, type, amount, category, description, date").single();
+  throwIfError(error);
+  return { ...data, amount: Number(data.amount) };
+}
+
+export async function updateTransaction(id, updates) {
+  const { data, error } = await requireClient().from("transactions").update(updates).eq("id", id).select("id, type, amount, category, description, date").single();
   throwIfError(error);
   return { ...data, amount: Number(data.amount) };
 }
@@ -65,5 +71,85 @@ export async function deleteTransaction(id) {
 
 export async function updateUserCurrency(currency) {
   const { error } = await requireClient().from("profiles").update({ preferred_currency: currency }).eq("id", (await getSession()).user.id);
+  throwIfError(error);
+}
+
+export async function fetchDebts() {
+  const { data, error } = await requireClient().from("debts").select("id, name, creditor, total_amount, remaining_amount, interest_rate, minimum_payment, due_day, start_date, status").order("created_at", { ascending: false });
+  throwIfError(error);
+  return data.map((d) => ({ ...d, total_amount: Number(d.total_amount), remaining_amount: Number(d.remaining_amount), interest_rate: Number(d.interest_rate), minimum_payment: Number(d.minimum_payment) }));
+}
+
+export async function addDebt(debt) {
+  const { data, error } = await requireClient().from("debts").insert(debt).select("id, name, creditor, total_amount, remaining_amount, interest_rate, minimum_payment, due_day, start_date, status").single();
+  throwIfError(error);
+  return { ...data, total_amount: Number(data.total_amount), remaining_amount: Number(data.remaining_amount), interest_rate: Number(data.interest_rate), minimum_payment: Number(data.minimum_payment) };
+}
+
+export async function updateDebt(id, updates) {
+  const { data, error } = await requireClient().from("debts").update(updates).eq("id", id).select("id, name, creditor, total_amount, remaining_amount, interest_rate, minimum_payment, due_day, start_date, status").single();
+  throwIfError(error);
+  return { ...data, total_amount: Number(data.total_amount), remaining_amount: Number(data.remaining_amount), interest_rate: Number(data.interest_rate), minimum_payment: Number(data.minimum_payment) };
+}
+
+export async function deleteDebt(id) {
+  const { error } = await requireClient().from("debts").delete().eq("id", id);
+  throwIfError(error);
+}
+
+export async function addDebtPayment(payment) {
+  const { data, error } = await requireClient().from("debt_payments").insert(payment).select("id, debt_id, amount, note, payment_date").single();
+  throwIfError(error);
+  return { ...data, amount: Number(data.amount) };
+}
+
+export async function fetchDebtPayments(debtId) {
+  const { data, error } = await requireClient().from("debt_payments").select("id, debt_id, amount, note, payment_date").eq("debt_id", debtId).order("payment_date", { ascending: false });
+  throwIfError(error);
+  return data.map((p) => ({ ...p, amount: Number(p.amount) }));
+}
+
+export async function deleteDebtPayment(payment) {
+  const { error } = await requireClient().from("debt_payments").delete().eq("id", payment.id);
+  throwIfError(error);
+}
+
+export async function fetchSavingsPlans() {
+  const { data, error } = await requireClient().from("savings_plans").select("id, name, target_amount, current_amount, deadline, months, color, status").order("created_at", { ascending: false });
+  throwIfError(error);
+  return data.map((p) => ({ ...p, target_amount: Number(p.target_amount), current_amount: Number(p.current_amount) }));
+}
+
+export async function addSavingsPlan(plan) {
+  const { data, error } = await requireClient().from("savings_plans").insert(plan).select("id, name, target_amount, current_amount, deadline, months, color, status").single();
+  throwIfError(error);
+  return { ...data, target_amount: Number(data.target_amount), current_amount: Number(data.current_amount) };
+}
+
+export async function updateSavingsPlan(id, updates) {
+  const { data, error } = await requireClient().from("savings_plans").update(updates).eq("id", id).select("id, name, target_amount, current_amount, deadline, months, color, status").single();
+  throwIfError(error);
+  return { ...data, target_amount: Number(data.target_amount), current_amount: Number(data.current_amount) };
+}
+
+export async function deleteSavingsPlan(id) {
+  const { error } = await requireClient().from("savings_plans").delete().eq("id", id);
+  throwIfError(error);
+}
+
+export async function addSavingsDeposit(deposit) {
+  const { data, error } = await requireClient().from("savings_deposits").insert(deposit).select("id, plan_id, amount, note, deposit_date").single();
+  throwIfError(error);
+  return { ...data, amount: Number(data.amount) };
+}
+
+export async function fetchSavingsDeposits(planId) {
+  const { data, error } = await requireClient().from("savings_deposits").select("id, plan_id, amount, note, deposit_date").eq("plan_id", planId).order("deposit_date", { ascending: false });
+  throwIfError(error);
+  return data.map((d) => ({ ...d, amount: Number(d.amount) }));
+}
+
+export async function deleteSavingsDeposit(deposit) {
+  const { error } = await requireClient().from("savings_deposits").delete().eq("id", deposit.id);
   throwIfError(error);
 }
